@@ -15,6 +15,7 @@ import classNames from 'classnames';
 export const App: React.FC = () => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState(false);
@@ -120,10 +121,16 @@ export const App: React.FC = () => {
                 </button>
 
                 {/* overlay will cover the todo while it is being deleted or updated */}
-                <div data-cy="TodoLoader" className="modal overlay">
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
+                {loading && (
+                  <div data-cy="TodoLoader" className="modal overlay">
+                    <div
+                      className={classNames(
+                        'modal-background has-background-white-ter',
+                      )}
+                    />
+                    <div className="loader" />
+                  </div>
+                )}
               </div>
             );
           })}
