@@ -2,8 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { USER_ID } from './api/todos';
-import { client } from './utils/fetchClient';
+import { FilterEnum, getTodos, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
@@ -20,24 +19,24 @@ export const App: React.FC = () => {
 
   const [inputText, setInputText] = useState('');
 
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedFilter, setSelectedFilter] = useState(FilterEnum.ALL);
+
+  const [completedLentgh, setCompletedLentgh] = useState(0);
 
   useEffect(() => {
     setLoading(true);
-    client
-      .get<Todo[]>(`/todos?userId=${USER_ID}`)
+    getTodos()
       .then(todosFromServer => {
         setVisibleTodos(todosFromServer);
-        setLoading(false);
+        setCompletedLentgh(
+          todosFromServer.filter(todo => !todo.completed).length,
+        );
       })
       .catch(() => {
         setError(true);
         setErrorMessage('Unable to load todos');
-        setLoading(false);
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, []);
 
   if (!USER_ID) {
@@ -56,6 +55,7 @@ export const App: React.FC = () => {
           setInputText={setInputText}
           setError={setError}
           setErrorMessage={setErrorMessage}
+          setVisibleTodos={setVisibleTodos}
         />
         <TodoList visibleTodos={visibleTodos} />
 
@@ -66,6 +66,7 @@ export const App: React.FC = () => {
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
             setVisibleTodos={setVisibleTodos}
+            completedLentgh={completedLentgh}
           />
         )}
       </div>

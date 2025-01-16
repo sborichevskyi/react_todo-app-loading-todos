@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Todo } from '../../types/Todo';
-import { createNewTodo } from '../../api/todos';
+import { addTodo } from '../../api/todos';
 import classNames from 'classnames';
 
 interface HeaderProps {
@@ -10,6 +10,7 @@ interface HeaderProps {
   setInputText: React.Dispatch<React.SetStateAction<string>>;
   setError: React.Dispatch<React.SetStateAction<boolean>>;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  setVisibleTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   setInputText,
   setError,
   setErrorMessage,
+  setVisibleTodos,
 }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -45,12 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
       <form
         onSubmit={event => {
           event.preventDefault();
-          if (inputText.trim() === '') {
-            setError(true);
-            setErrorMessage('Title should not be empty');
-          } else {
-            createNewTodo(inputText, setError, setErrorMessage);
-          }
+          addTodo(inputText, setError, setErrorMessage, setVisibleTodos);
         }}
       >
         <input

@@ -2,12 +2,14 @@ import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { getActiveTodos, getCompletedTodos, getTodos } from '../../api/todos';
+import { FilterEnum } from '../../api/todos';
 
 interface FooterProps {
   visibleTodos: Todo[];
   selectedFilter: string;
-  setSelectedFilter: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedFilter: React.Dispatch<React.SetStateAction<FilterEnum>>;
   setVisibleTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  completedLentgh: number;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -15,70 +17,54 @@ export const Footer: React.FC<FooterProps> = ({
   selectedFilter,
   setSelectedFilter,
   setVisibleTodos,
+  completedLentgh,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {visibleTodos.filter(todo => !todo.completed).length} items left
+        {completedLentgh} items left
       </span>
 
       {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={classNames('filter__link', {
-            selected: selectedFilter === 'all',
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => {
-            if (selectedFilter === 'all') {
-              return;
-            }
+        {Object.values(FilterEnum).map((curFilter, index) => {
+          return (
+            <a
+              key={index}
+              href={`#/${curFilter}`}
+              className={classNames('filter__link', {
+                selected: selectedFilter === curFilter,
+              })}
+              data-cy={`FilterLink${curFilter.charAt(0).toUpperCase() + curFilter.slice(1)}`}
+              onClick={() => {
+                if (selectedFilter === curFilter) {
+                  return;
+                }
 
-            setSelectedFilter('all');
-            getTodos().then(allTodos => setVisibleTodos(allTodos));
-          }}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: selectedFilter === 'active',
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => {
-            if (selectedFilter === 'active') {
-              return;
-            }
-
-            setSelectedFilter('active');
-            getActiveTodos().then(activeTodos => setVisibleTodos(activeTodos));
-          }}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: selectedFilter === 'completed',
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => {
-            if (selectedFilter === 'completed') {
-              return;
-            }
-
-            setSelectedFilter('completed');
-            getCompletedTodos().then(completedTodos =>
-              setVisibleTodos(completedTodos),
-            );
-          }}
-        >
-          Completed
-        </a>
+                setSelectedFilter(curFilter);
+                switch (curFilter) {
+                  case FilterEnum.ALL:
+                    getTodos().then(allTodos => setVisibleTodos(allTodos));
+                    break;
+                  case FilterEnum.ACTIVE:
+                    getActiveTodos().then(activeTodos =>
+                      setVisibleTodos(activeTodos),
+                    );
+                    break;
+                  case FilterEnum.COMPLETED:
+                    getCompletedTodos().then(completedTodos =>
+                      setVisibleTodos(completedTodos),
+                    );
+                    break;
+                  default:
+                    break;
+                }
+              }}
+            >
+              {curFilter.charAt(0).toUpperCase() + curFilter.slice(1)}
+            </a>
+          );
+        })}
       </nav>
 
       {/* this button should be disabled if there are no completed todos */}

@@ -10,26 +10,26 @@ interface TodoListProps {
 export const TodoList: React.FC<TodoListProps> = ({ visibleTodos }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {visibleTodos.map(todo => {
+      {visibleTodos.map(({ id, title, completed }) => {
         return (
           <div
             data-cy="Todo"
             className={classNames('todo', {
-              completed: todo.completed,
+              completed: completed,
             })}
-            key={todo.id}
+            key={id}
           >
             <label className="todo__status-label">
               <input
                 data-cy="TodoStatus"
                 type="checkbox"
                 className="todo__status"
-                checked={todo.completed}
+                checked={completed}
               />
             </label>
 
             <span data-cy="TodoTitle" className="todo__title">
-              {todo.title}
+              {title}
             </span>
 
             {/* Remove button appears only on hover */}
