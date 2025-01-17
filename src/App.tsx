@@ -11,6 +11,7 @@ import { ErrorNotifications } from './components/ErrorNotifications';
 
 export const App: React.FC = () => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
+  const [allTodos, setAllTodos] = useState<Todo[]>([]);
 
   const [, setLoading] = useState(false);
 
@@ -27,6 +28,7 @@ export const App: React.FC = () => {
     setLoading(true);
     getTodos()
       .then(todosFromServer => {
+        setAllTodos(todosFromServer);
         setVisibleTodos(todosFromServer);
         setCompletedLentgh(
           todosFromServer.filter(todo => !todo.completed).length,
@@ -60,13 +62,13 @@ export const App: React.FC = () => {
         <TodoList visibleTodos={visibleTodos} />
 
         {/* Hide the footer if there are no todos */}
-        {visibleTodos.length > 0 && (
+        {allTodos.length > 0 && (
           <Footer
-            visibleTodos={visibleTodos}
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
             setVisibleTodos={setVisibleTodos}
             completedLentgh={completedLentgh}
+            allTodos={allTodos}
           />
         )}
       </div>

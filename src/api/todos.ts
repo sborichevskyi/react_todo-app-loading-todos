@@ -7,16 +7,12 @@ export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export const getCompletedTodos = () => {
-  return client
-    .get<Todo[]>(`/todos?userId=${USER_ID}`)
-    .then(allTodos => allTodos.filter(todo => todo.completed));
+export const getCompletedTodos = (visibleTodos: Todo[]) => {
+  return visibleTodos.filter(todo => todo.completed);
 };
 
-export const getActiveTodos = () => {
-  return client
-    .get<Todo[]>(`/todos?userId=${USER_ID}`)
-    .then(allTodos => allTodos.filter(todo => !todo.completed));
+export const getActiveTodos = (visibleTodos: Todo[]) => {
+  return visibleTodos.filter(todo => !todo.completed);
 };
 
 export const createNewTodo = async (
@@ -24,6 +20,7 @@ export const createNewTodo = async (
   setError: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
   setVisibleTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+  setInputText: React.Dispatch<React.SetStateAction<string>>,
 ) => {
   try {
     const todos = await getTodos();
@@ -40,6 +37,7 @@ export const createNewTodo = async (
 
     await client.post(`/todos?userId=${USER_ID}`, newTodo);
     setVisibleTodos(prevTodos => [...prevTodos, newTodo]);
+    setInputText('');
   } catch (error) {
     setError(true);
     setErrorMessage('Unable to create a new todo');
@@ -57,11 +55,45 @@ export const addTodo = (
   setError: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
   setVisibleTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+  setInputText: React.Dispatch<React.SetStateAction<string>>,
 ) => {
   if (inputText.trim() === '') {
     setError(true);
     setErrorMessage('Title should not be empty');
   } else {
-    createNewTodo(inputText, setError, setErrorMessage, setVisibleTodos);
+    createNewTodo(
+      inputText,
+      setError,
+      setErrorMessage,
+      setVisibleTodos,
+      setInputText,
+    );
+  }
+};
+
+export const filterTodos = async (
+  curFilter: FilterEnum,
+  setVisibleTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+  allTodos: Todo[],
+) => {
+  switch (curFilter) {
+    case FilterEnum.ALL:
+      setVisibleTodos(allTodos);
+
+      break;
+    case FilterEnum.ACTIVE:
+      const activeTodos = getActiveTodos(allTodos);
+
+      setVisibleTodos(activeTodos);
+
+      break;
+    case FilterEnum.COMPLETED:
+      const completedTodos = getCompletedTodos(allTodos);
+
+      setVisibleTodos(completedTodos);
+
+      break;
+    default:
+      throw new Error(`Unsupported filter type: ${curFilter}`);
   }
 };

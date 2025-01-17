@@ -47,7 +47,13 @@ export const Header: React.FC<HeaderProps> = ({
       <form
         onSubmit={event => {
           event.preventDefault();
-          addTodo(inputText, setError, setErrorMessage, setVisibleTodos);
+          addTodo(
+            inputText,
+            setError,
+            setErrorMessage,
+            setVisibleTodos,
+            setInputText,
+          );
         }}
       >
         <input
